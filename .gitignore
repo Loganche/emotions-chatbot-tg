@@ -1,0 +1,8 @@
+# Model and Tokenizer directories
+/model*
+/tokenizer*
+# pycache directory
+/__pycache__
+# configs
+/.vscode
+setup.cfg

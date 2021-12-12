@@ -1,3 +1,5 @@
+import torch
+
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 
@@ -38,11 +40,18 @@ def load_model_tokenizer(directory_model=directory_model,
     return model, tokenizer
 
 
+def argmax(iterable):
+    '''Return index of max element in any iterable object'''
+
+    return max(enumerate(iterable), key=lambda x: x[1])[0]
+
+
 def generate(model, tokenizer, input_string):
     '''Generating Text'''
+    classes = ["NEGATIVE", "NEUTRAL", "POSITIVE"]
 
     inputs = tokenizer([input_string], return_tensors='pt')
-    reply_ids = model.generate(**inputs)
+    reply_ids = model(**inputs).logits
+    result = argmax(torch.softmax(reply_ids, dim=1).tolist()[0])
 
-    return tokenizer.batch_decode(
-        reply_ids, skip_special_tokens=True)
+    return classes[result]

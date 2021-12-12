@@ -25,6 +25,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('start', bf.start))
 
     dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), bf.reply))
+    # dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), bf.classify))
     dispatcher.add_handler(MessageHandler(Filters.command, bf.unknown))
 
     updater.start_polling()

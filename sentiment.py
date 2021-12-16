@@ -72,6 +72,6 @@ def normalize(reply_ids):
     classes = ["NEGATIVE", "NEUTRAL", "POSITIVE"]
 
     result = F.normalize(reply_ids)
-    result = argmax(torch.softmax(reply_ids, dim=1).tolist()[0])
+    result = argmax(torch.tanh(result, dim=1).tolist()[0])
 
     return classes[result], result

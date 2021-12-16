@@ -3,6 +3,7 @@ import sentiment
 import emotion
 
 import logging
+import torch
 import numpy as np
 
 from uuid import uuid4
@@ -43,7 +44,7 @@ def reply(update: Update, context: CallbackContext):
 
     model_sentiment, tokenizer_sentiment = sentiment.load_model_tokenizer(
         'model_sentiment', 'tokenizer_sentiment')
-    _, ans_result = sentiment.generate(
+    ans_result = sentiment.generate_probs(
         model_sentiment, tokenizer_sentiment, update.message.text)
 
     # Generate ID and separate value from command
@@ -59,11 +60,15 @@ def reply(update: Update, context: CallbackContext):
 def result(update: Update, context: CallbackContext):
     '''Get results of emotional state'''
     # Берем среднее и округляем значения, а затем сравниваем с классами в отдельной функции
-    results = show_res(round(np.mean(list(context.user_data.values()))))
+    results = 0
+    reply_ids = list(context.user_data.values())
+    for reply_id in reply_ids:
+        results += reply_id
+    results, _ = sentiment.normalize(results)
 
     context.bot.send_message(chat_id=update.effective_chat.id,
                              text=f'Your emotional state is {results}')
-    # Очищаем БД сообщений, прежде, чем начать снова считать их
+    # Очищаем БД от сообщений, прежде, чем начать снова считать их
     context.user_data.clear()
 
 

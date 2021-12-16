@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
@@ -46,12 +47,31 @@ def argmax(iterable):
     return max(enumerate(iterable), key=lambda x: x[1])[0]
 
 
-def generate(model, tokenizer, input_string):
-    '''Generating Text'''
+def generate_class(model, tokenizer, input_string):
+    '''Predicting Classes'''
     classes = ["NEGATIVE", "NEUTRAL", "POSITIVE"]
 
     inputs = tokenizer([input_string], return_tensors='pt')
     reply_ids = model(**inputs).logits
+    result = argmax(torch.softmax(reply_ids, dim=1).tolist()[0])
+
+    return classes[result], result
+
+
+def generate_probs(model, tokenizer, input_string):
+    '''Predicting Probabilities'''
+
+    inputs = tokenizer([input_string], return_tensors='pt')
+    reply_ids = model(**inputs).logits
+
+    return reply_ids
+
+
+def normalize(reply_ids):
+    '''Predicting and generating final classes'''
+    classes = ["NEGATIVE", "NEUTRAL", "POSITIVE"]
+
+    result = F.normalize(reply_ids)
     result = argmax(torch.softmax(reply_ids, dim=1).tolist()[0])
 
     return classes[result], result

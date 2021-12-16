@@ -1,9 +1,12 @@
+import torch
+import torch.nn.functional as F
+
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 
 model_checkpoint = 'finiteautomata/bertweet-base-emotion-analysis'
-directory_model = 'model_sentiment'
-directory_tokenizer = 'tokenizer_sentiment'
+directory_model = 'model_emotion'
+directory_tokenizer = 'tokenizer_emotion'
 dataset_file = 'dataset.txt'
 train_file = 'train_tmp.txt'
 validation_file = 'validation_tmp.txt'
@@ -38,11 +41,37 @@ def load_model_tokenizer(directory_model=directory_model,
     return model, tokenizer
 
 
-def generate(model, tokenizer, input_string):
-    '''Generating Text'''
+def argmax(iterable):
+    '''Return index of max element in any iterable object'''
+
+    return max(enumerate(iterable), key=lambda x: x[1])[0]
+
+
+def generate_class(model, tokenizer, input_string):
+    '''Predicting Classes'''
+    classes = ["others", "joy", "sadness", "anger", "surprise", "disgust", "fear"]
 
     inputs = tokenizer([input_string], return_tensors='pt')
-    reply_ids = model.generate(**inputs)
+    reply_ids = model(**inputs).logits
+    result = argmax(torch.softmax(reply_ids, dim=1).tolist()[0])
 
-    return tokenizer.batch_decode(
-        reply_ids, skip_special_tokens=True)
+    return classes[result], result
+
+
+def generate_probs(model, tokenizer, input_string):
+    '''Predicting Probabilities'''
+
+    inputs = tokenizer([input_string], return_tensors='pt')
+    reply_ids = model(**inputs).logits
+
+    return reply_ids
+
+
+def normalize(reply_ids):
+    '''Predicting and generating final classes'''
+    classes = ["others", "joy", "sadness", "anger", "surprise", "disgust", "fear"]
+
+    result = F.normalize(reply_ids)
+    result = argmax(torch.softmax(reply_ids, dim=1).tolist()[0])
+
+    return classes[result], result

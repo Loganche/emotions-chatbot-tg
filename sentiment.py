@@ -54,4 +54,4 @@ def generate(model, tokenizer, input_string):
     reply_ids = model(**inputs).logits
     result = argmax(torch.softmax(reply_ids, dim=1).tolist()[0])
 
-    return classes[result]
+    return classes[result], result

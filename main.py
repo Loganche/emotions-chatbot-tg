@@ -23,6 +23,7 @@ def main() -> None:
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler('start', bf.start))
+    dispatcher.add_handler(CommandHandler('result', bf.result))
 
     dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), bf.reply))
     # dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), bf.classify))

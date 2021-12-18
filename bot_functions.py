@@ -2,6 +2,7 @@ import chatbot
 import sentiment
 import emotion
 
+import timeit
 import logging
 import torch
 import numpy as np
@@ -74,8 +75,8 @@ def result(update: Update, context: CallbackContext):
 
 def show_res(x):
     if x == 0:
-        return 'NEGATIVE'
+        return 'Negative'
     elif x == 1:
-        return 'NEUTRAL'
+        return 'Neutral'
     else:
-        return 'POSITIVE'
+        return 'Positive'
